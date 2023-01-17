@@ -1,0 +1,116 @@
+#pragma once
+#include "_Graph.h"
+#include <algorithm>
+#include <set>
+#include <map>
+#include <list>
+#include <queue>
+#include <stack>
+template<class _Kty, class _Ty>
+class _GraphService {
+private:
+	using key_type = _Kty;
+	using value_type = _Ty;
+
+	using vertex_type = _Graph_vertex<key_type, value_type>;
+	using _Vertexptr = vertex_type*;
+
+	using edge_type = _Graph_edge<key_type, value_type>;
+	using _Edgeptr = edge_type*;
+
+	using graph_type = _Graph<_Kty, _Ty>;
+	using _Graphptr = graph_type*;
+public:
+
+	int _Dijkstra(_Graphptr graph, _Vertexptr vertexFrom, _Vertexptr vertexTo) {
+		std::set<_Vertexptr> visited;
+		std::list<std::pair<_Vertexptr, int>> reachable{{vertexFrom, 0}};
+		auto _Pairptr = reachable.begin();
+		auto& edges = graph->getEdges();
+
+		for (_Pairptr;_Pairptr != reachable.end(); _Pairptr++) {
+			if (visited.find(_Pairptr->first) != visited.end() || _Pairptr->first == vertexTo) {
+				break;
+			}
+			visited.insert(_Pairptr->first);
+			//std::list<std::pair<_Vertexptr, int>> reached{};
+			for (auto& edge : edges[_Pairptr->first->key])
+				if (!(visited.find(edge->_vertexTo) != visited.end())) {
+					int width = _Pairptr->second + (int)edge->value;
+					auto a = _Pairptr;
+					for (a; a != reachable.end(); a++) {
+						int num = a->second;
+						if (num > width) {
+							reachable.insert(a, {edge->_vertexTo, width });
+							break;
+						}
+					}
+					if (a == reachable.end())
+						reachable.push_back({ edge->_vertexTo, width });
+				}
+		}
+
+		_Pairptr = reachable.begin();
+		for (_Pairptr; _Pairptr != reachable.end(); _Pairptr++) {
+			if (_Pairptr->first == vertexTo) {
+				return _Pairptr->second;
+			}
+		}
+		return -1;
+	}
+
+	std::map<_Vertexptr, int> BFS(_Graphptr graph, _Vertexptr vertexFrom) {
+		std::queue<_Vertexptr> q;
+		auto& edges = graph->getEdges();
+		std::set<_Vertexptr> visited;
+
+		std::map<_Vertexptr, int> reached{ {vertexFrom, 0} };
+		q.push(vertexFrom);
+
+		while (!q.empty()) {
+			auto now = q.front();
+			visited.insert(now);
+			q.pop();
+			for (auto& e : edges[now->key]) {
+				if (!(visited.find(e->_vertexTo) != visited.end())) {
+					q.push(e->_vertexTo);
+					if (reached.find(e->_vertexTo) == reached.end())
+						reached[e->_vertexTo] = reached[now] + e->value;
+					else if (reached[e->_vertexTo] > reached[now] + e->value) {
+						reached[e->_vertexTo] = reached[now] + e->value;
+					}
+				}
+			}
+		}
+		return reached;
+	}
+
+
+	std::map<_Vertexptr, int> DFS(_Graphptr graph, _Vertexptr vertexFrom) {
+		std::stack<_Vertexptr> q;
+		auto& edges = graph->getEdges();
+		std::set<_Vertexptr> visited;
+
+		std::map<_Vertexptr, int> reached{ {vertexFrom, 0} };
+		q.push(vertexFrom);
+
+		while (!q.empty()) {
+			auto now = q.top();
+			visited.insert(now);
+			q.pop();
+			for (auto& e : edges[now->key]) {
+				if (!(visited.find(e->_vertexTo) != visited.end())) {
+					q.push(e->_vertexTo);
+					if (reached.find(e->_vertexTo) == reached.end())
+						reached[e->_vertexTo] = reached[now] + e->value;
+					else if (reached[e->_vertexTo] > reached[now] + e->value) {
+						reached[e->_vertexTo] = reached[now] + e->value;
+					}
+				}
+			}
+		}
+		return reached;
+
+	}
+
+}; 
