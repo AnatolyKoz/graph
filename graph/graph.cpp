@@ -57,6 +57,19 @@ int main() {
                     for (auto& i : a)
                         std::cout << "Vertex: " << i.first->key << " dist: " << i.second << "\n";
                 }
+
+
+                
+                if (event.key.code == sf::Keyboard::C) {
+                    auto i = 0;
+                    auto edgesMap = graph->getEdges();
+                    std::cout << "Key From " << " To " << " weigth " << "\n";
+                    for (auto& edges : edgesMap) {
+                        for (auto& edge : edges.second) {
+                            std::cout << i++ <<  " " << edge->_vertexFrom->key << " " << edge->_vertexTo->key << " " << edge->value << "\n";
+                        }
+                    }
+                }
             }
 
             sf::Vector2f coords(event.mouseButton.x, event.mouseButton.y);

@@ -64,7 +64,8 @@ public:
 
 	 _Edgeptr _Insert_edge(_Edgeptr edge) {
 		 _MyEdgeMap[edge->_vertexFrom->key].push_back(edge);
-		 return edge;
+		
+		return edge;
 	 }
 
 	 _Vertexptr getVertex(key_type _key) {
