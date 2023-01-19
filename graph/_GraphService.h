@@ -22,7 +22,7 @@ private:
 	using _Graphptr = graph_type*;
 public:
 
-	int _Dijkstra(_Graphptr graph, _Vertexptr vertexFrom, _Vertexptr vertexTo) {
+	int _Dijkstra(_Graphptr graph, _Vertexptr vertexFrom, _Vertexptr vertexTo) const {
 		std::set<_Vertexptr> visited;
 		std::list<std::pair<_Vertexptr, int>> reachable{{vertexFrom, 0}};
 		auto _Pairptr = reachable.begin();
@@ -33,14 +33,12 @@ public:
 				break;
 			}
 			visited.insert(_Pairptr->first);
-			//std::list<std::pair<_Vertexptr, int>> reached{};
 			for (auto& edge : edges[_Pairptr->first->key])
 				if (!(visited.find(edge->_vertexTo) != visited.end())) {
-					int width = _Pairptr->second + (int)edge->value;
+					auto width = _Pairptr->second + (int)edge->value;
 					auto a = _Pairptr;
-					for (a; a != reachable.end(); a++) {
-						int num = a->second;
-						if (num > width) {
+					for (a; a != reachable.end(); std::advance(a, 1)) {
+						if (a->second > width) {
 							reachable.insert(a, {edge->_vertexTo, width });
 							break;
 						}
@@ -59,7 +57,7 @@ public:
 		return -1;
 	}
 
-	std::map<_Vertexptr, int> BFS(_Graphptr graph, _Vertexptr vertexFrom) {
+	std::map<_Vertexptr, int> BFS(_Graphptr graph, _Vertexptr vertexFrom) const {
 		std::queue<_Vertexptr> q;
 		auto& edges = graph->getEdges();
 		std::set<_Vertexptr> visited;
@@ -86,7 +84,7 @@ public:
 	}
 
 
-	std::map<_Vertexptr, int> DFS(_Graphptr graph, _Vertexptr vertexFrom) {
+	std::map<_Vertexptr, int> DFS(_Graphptr graph, _Vertexptr vertexFrom) const  {
 		std::stack<_Vertexptr> q;
 		auto& edges = graph->getEdges();
 		std::set<_Vertexptr> visited;

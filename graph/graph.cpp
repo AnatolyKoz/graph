@@ -8,6 +8,9 @@
 #include "ButtonMode.h"
 #include "_GraphService.h"
 
+
+
+
 int main() {
     sf::Font font;
     if (!font.loadFromFile("CyrilicOld.TTF"))
@@ -43,7 +46,7 @@ int main() {
                     std::cout << "Input from id:";
                     std::cin >> first;
 
-                    auto a = _graphService->DFS(graph, graph->getVertex(first));
+                    auto a = _graphService->BFS(graph, graph->getVertex(first));
                     for (auto& i : a)
                         std::cout << "Vertex: " << i.first->key << " dist: " << i.second << "\n";
                 }
@@ -58,15 +61,49 @@ int main() {
                         std::cout << "Vertex: " << i.first->key << " dist: " << i.second << "\n";
                 }
 
+                if (event.key.code == sf::Keyboard::R) {
+                    unsigned int first, second;
+                    std::cout << "Input first id:";
+                    std::cin >> first;
+                    std::cout << "Input second id:";
+                    std::cin >> second;
+
+                    graph->_Delete_edge(graph->getVertex(first), graph->getVertex(second));
+                }
+
 
                 
                 if (event.key.code == sf::Keyboard::C) {
                     auto i = 0;
                     auto edgesMap = graph->getEdges();
-                    std::cout << "Key From " << " To " << " weigth " << "\n";
+                    std::cout << "  Key    From      To  weight" << "\n";
                     for (auto& edges : edgesMap) {
                         for (auto& edge : edges.second) {
-                            std::cout << i++ <<  " " << edge->_vertexFrom->key << " " << edge->_vertexTo->key << " " << edge->value << "\n";
+                            const auto a = [](int digit) {
+                                int i = 0;
+                                for (digit; digit > 0; digit /= 10) {
+                                    i += 1;
+                                }
+                                return i;
+                            };
+
+                            for (int j = 4 - a(i); j != 0; j--)
+                                std::cout << " ";
+                            std::cout << i++;
+
+                            for (int j = 8 - a(edge->_vertexFrom->key); j != 0; j--)
+                                std::cout << " ";
+                            std::cout << edge->_vertexFrom->key;
+
+                            for (int j = 8 - a(edge->_vertexTo->key); j != 0; j--)
+                                std::cout << " ";
+                            std::cout << edge->_vertexTo->key;
+
+                            for (int j = 8 - a(edge->value); j != 0; j--)
+                                std::cout << " ";
+                            std::cout << edge->value;
+
+                            std::cout << "\n";
                         }
                     }
                 }
@@ -124,7 +161,7 @@ int main() {
                         if (key == 0)
                             std::cout << "click closer\n";
                         else
-                            graph->_Delate_Vertex(key);
+                            graph->_Delete_Vertex(key);
                         break;
                     }
                                            

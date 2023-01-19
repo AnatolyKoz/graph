@@ -15,7 +15,6 @@ struct _DrawVertex {
 	sf::Vector2f coords;
 };
 
-
 class _Drawgraph : public sf::Drawable, public sf::Transformable {
 public:
 
@@ -117,7 +116,8 @@ public:
 
 		txt->setFillColor(sf::Color(112, 124, 0));
 		txt->setFont(_Myfont);
-		txt->setPosition( (_edge->_vertexFrom->value.coords.x + _edge->_vertexTo->value.coords.x) / 2 , (_edge->_vertexFrom->value.coords.y + _edge->_vertexTo->value.coords.y) / 2);
+		txt->setPosition( (_edge->_vertexFrom->value.coords.x + _edge->_vertexTo->value.coords.x) / 2 , 
+			(_edge->_vertexFrom->value.coords.y + _edge->_vertexTo->value.coords.y) / 2);
 		target.draw(*txt, states);
 		/*
 		sf::CircleShape triangle(10, 3);
@@ -151,14 +151,16 @@ public:
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates states)  const {
 		states.transform *= getTransform();
 
+		for (auto& pair : _Mygraph->getEdges()) {
+			for (auto edge : pair.second)
+				_drawEdge(target, states, edge);
+		}
+
 		for (auto vertex : _Mygraph->getVertexes()) {
 			_drawVertex(target, states, vertex.second);
 		}
 
-		for (auto& pair : _Mygraph->getEdges()) {
-			for (auto edge: pair.second) 
-				_drawEdge(target, states, edge);
-		}
+		
 		_drawButton(target, states);
 	}
 
@@ -184,7 +186,6 @@ public:
 		return false;
 	}
 
-
 	ButtonMode alocateButtonMode(coords_type coords) {
 		if (coords.x > 0 && coords.x < ((fieldSize_t - 10) / 3))
 			return ButtonMode(ButtonMode::CREATE_VERTEX);
@@ -200,6 +201,4 @@ public:
 	key_type getSelectedKey() {
 		return selectedKey;
 	}
-
-
 };

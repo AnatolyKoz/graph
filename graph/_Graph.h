@@ -1,7 +1,8 @@
 #pragma once
 #include <map>
 #include <set>
-#include <vector>
+#include <list> 
+
 template<class _Kty, class _Ty>
 struct _Graph_vertex {
 	_Ty value;
@@ -38,7 +39,7 @@ public:
 		lastId = 1;
 	}
 
-	_Vertexptr _Insert_verex(const _Vertexptr _Newvertex) {
+	_Vertexptr _Insert_vertex(const _Vertexptr _Newvertex) {
 		_MyVertexptrMap[_Newvertex->key] = (_Newvertex);
 		return _Newvertex;
 	}
@@ -47,25 +48,51 @@ public:
 		_Vertexptr _Newvertex = new vertex_type();
 		_Newvertex->value = value;
 		_Newvertex->key = lastId++;
-		return _Insert_verex(_Newvertex);
+		return _Insert_vertex(_Newvertex);
 	}
 
-	 void _Delate_Vertex(key_type key) {
-		_MyEdgeMap.erase(key);
+	 void _Delete_Vertex(key_type key) {
 		for (auto& p : _MyEdgeMap) {
-			for (auto& edge : p.second) {
-				if (edge->_vertexTo->key == key) {
-					//p.second
+			auto& edges = p.second;
+			for (int i = 0; i < edges.size(); i++) {
+				if (edges[i]->_vertexTo->key == key || edges[i]->_vertexFrom->key == key) {
+					delete(edges[i]);
+					auto edge = edges.begin();
+					std::advance(edge, i);
+					edges.erase(edge);
 				}
 			}
 		}
+
+		auto pair = _MyVertexptrMap[key];
 		_MyVertexptrMap.erase(key);
+		delete(pair);
+
 	}
 
-	 _Edgeptr _Insert_edge(_Edgeptr edge) {
-		 _MyEdgeMap[edge->_vertexFrom->key].push_back(edge);
+	 _Edgeptr _Insert_edge(_Edgeptr _Newedge) {
+		 for (auto& edge : _MyEdgeMap[_Newedge->_vertexFrom->key]) {
+			 if (edge->_vertexTo == _Newedge->_vertexTo) {
+				 delete(edge);
+				 edge = _Newedge;
+				 return _Newedge;
+			 }
+		 }
+		 _MyEdgeMap[_Newedge->_vertexFrom->key].push_back(_Newedge);
 		
-		return edge;
+		 return _Newedge;
+	 }
+
+	 void _Delete_edge(const _Vertexptr _VertexFrom, const _Vertexptr _VeretxTo) {
+
+		 auto& vect = _MyEdgeMap[_VertexFrom->key];
+		 for (auto i = 0; i < vect.size(); ++i) {
+			 if (vect[i]->_vertexTo == _VeretxTo) {
+				 auto edge = _MyEdgeMap[_VertexFrom->key].begin();
+				 std::advance(edge, i);
+				 vect.erase(edge);
+			 }
+		 }
 	 }
 
 	 _Vertexptr getVertex(key_type _key) {
