@@ -24,11 +24,11 @@ public:
 
 	int _Dijkstra(_Graphptr graph, _Vertexptr vertexFrom, _Vertexptr vertexTo) const {
 		std::set<_Vertexptr> visited;
-		std::list<std::pair<_Vertexptr, int>> reachable{{vertexFrom, 0}};
+		std::list<std::pair<_Vertexptr, int>> reachable{ {vertexFrom, 0} };
 		auto _Pairptr = reachable.begin();
 		auto& edges = graph->getEdges();
 
-		for (_Pairptr;_Pairptr != reachable.end(); _Pairptr++) {
+		for (_Pairptr; _Pairptr != reachable.end(); _Pairptr++) {
 			if (visited.find(_Pairptr->first) != visited.end() || _Pairptr->first == vertexTo) {
 				break;
 			}
@@ -39,7 +39,7 @@ public:
 					auto a = _Pairptr;
 					for (a; a != reachable.end(); std::advance(a, 1)) {
 						if (a->second > width) {
-							reachable.insert(a, {edge->_vertexTo, width });
+							reachable.insert(a, { edge->_vertexTo, width });
 							break;
 						}
 					}
@@ -84,7 +84,7 @@ public:
 	}
 
 
-	std::map<_Vertexptr, int> DFS(_Graphptr graph, _Vertexptr vertexFrom) const  {
+	std::map<_Vertexptr, int> DFS(_Graphptr graph, _Vertexptr vertexFrom) const {
 		std::stack<_Vertexptr> q;
 		auto& edges = graph->getEdges();
 		std::set<_Vertexptr> visited;
@@ -110,5 +110,4 @@ public:
 		return reached;
 
 	}
-
-}; 
+};

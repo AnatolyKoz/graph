@@ -8,12 +8,9 @@
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
 #include "_Graph.h"
-#include "ButtonMode.h"
+#include "_Drawablevertex.h"
 #include <vector>
 #include <string>
-struct _DrawVertex {
-	sf::Vector2f coords;
-};
 
 class _Drawgraph : public sf::Drawable, public sf::Transformable {
 public:
@@ -24,10 +21,10 @@ public:
 	using key_type = unsigned int;
 
 
-	using vertex_type = _Graph_vertex<key_type, _DrawVertex>;
+	using vertex_type = _Graph_vertex<key_type, _DrawableVertex>;
 	using Vertexptr = vertex_type*;
 
-	using edge_type = _Graph_edge<key_type, _DrawVertex>;
+	using edge_type = _Graph_edge<key_type, _DrawableVertex>;
 	using Edgeptr = edge_type*;
 
 	const float fieldSize_t = 700;
@@ -41,10 +38,10 @@ private:
 	color_type outlineColor = sf::Color(172, 235, 0);
 
 
-	_Graph<key_type, _DrawVertex>* _Mygraph;
+	_Graph<key_type, _DrawableVertex>* _Mygraph;
 public:
 
-	_Drawgraph(_Graph<key_type, _DrawVertex>* graph, font_type _font) {
+	_Drawgraph(_Graph<key_type, _DrawableVertex>* graph, font_type _font) {
 		_Myfont = _font;
 		_Mygraph = graph;
 		selectedKey = 0;
@@ -63,6 +60,7 @@ public:
 		target.draw(*shape, states);
 	
 		// text
+		sf::Text a;
 		auto txt = new sf::Text();
 		txt->setString(std::to_string(_vertex->key));
 
@@ -73,40 +71,13 @@ public:
 		target.draw(*txt, states);
 	}
 
-	void _drawButton(sf::RenderTarget& target, sf::RenderStates states) const {
-		sf::Color RectangleShapeColor = sf::Color(172, 235, 0);
-		sf::RectangleShape shape(sf::Vector2f((fieldSize_t - 10) / 3, 180));
-		shape.setOutlineThickness(2.f);
-		shape.setOutlineColor(outlineColor);
-		shape.setFillColor(sf::Color::Transparent);
-
-		std::vector<std::string> sbuttonText;
-		sbuttonText.push_back("Create vertex");
-		sbuttonText.push_back("Create Edge");
-		sbuttonText.push_back("Deleate");
-
-		for (int i = 0; i < 3; i++) {
-			shape.setPosition(5 + ((fieldSize_t - 10) / 3) * (i), (fieldSize_t - 190));
-			target.draw(shape, states);
-
-			auto txt = new sf::Text();
-			txt->setString(sbuttonText[i]);
-
-			txt->setFillColor(sf::Color(112, 124, 0));
-			txt->setFont(_Myfont);
-			txt->setPosition(5 + ((fieldSize_t - 10) / 3) * (i), (fieldSize_t - 190));
-			target.draw(*txt, states);
-		}
-
-	}
-
+	
 	void _drawEdge(sf::RenderTarget& target, sf::RenderStates states, Edgeptr _edge) const {
 		sf::Color lineColor = sf::Color(172, 235, 0);
 
 		sf::Vertex line[] = {
 					sf::Vertex(_edge->_vertexFrom->value.coords),
 					sf::Vertex(_edge->_vertexTo->value.coords),
-
 		};
 		target.draw(line, 2, sf::Lines, states);
 
@@ -159,9 +130,6 @@ public:
 		for (auto vertex : _Mygraph->getVertexes()) {
 			_drawVertex(target, states, vertex.second);
 		}
-
-		
-		_drawButton(target, states);
 	}
 
 	key_type checkAllocateVertex(coords_type coordsC) {
@@ -178,20 +146,6 @@ public:
 		if ((coords.x > 0 && coords.x < fieldSize_t) && (coords.y > 0 && coords.y < fieldSize_t))
 			return true;
 		return false;
-	}
-
-	bool checkAllocateButton(coords_type coords) {
-		if (coords.y > fieldSize_t - 190 && coords.y < fieldSize_t)
-			return true;
-		return false;
-	}
-
-	ButtonMode alocateButtonMode(coords_type coords) {
-		if (coords.x > 0 && coords.x < ((fieldSize_t - 10) / 3))
-			return ButtonMode(ButtonMode::CREATE_VERTEX);
-		if ((coords.x > (fieldSize_t - 10) / 3) && coords.x < ((fieldSize_t - 10) / 3) * 2)
-			return ButtonMode(ButtonMode::CREATE_EDGE);
-		return ButtonMode(ButtonMode::DELEAT);
 	}
 
 	void selectId(key_type key) {

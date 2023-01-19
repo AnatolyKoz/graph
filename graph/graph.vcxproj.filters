@@ -26,10 +26,13 @@
     <ClInclude Include="_Drawgraph.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="ButtonMode.h">
+    <ClInclude Include="_GraphService.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="_GraphService.h">
+    <ClInclude Include="_Drawui.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="_Drawablevertex.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

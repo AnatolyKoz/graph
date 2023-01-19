@@ -3,33 +3,106 @@
 #include <iostream>
 #include <utility>
 #include <string>
+#include <functional>
 #include "_DrawGraph.h"
 #include "_Graph.h"
-#include "ButtonMode.h"
 #include "_GraphService.h"
-
+#include "_Drawablevertex.h"
+#include "_Drawui.h"
 
 
 
 int main() {
+
+    // Font 
     sf::Font font;
     if (!font.loadFromFile("CyrilicOld.TTF"))
         return -1;
 
-
-    auto graph = new _Graph<unsigned int, _DrawVertex>();
+    // graph serv
+    auto graph = new _Graph<unsigned int, _DrawableVertex>();
     auto drawGraph = new _Drawgraph(graph, font);
-    auto buttonMode = new ButtonMode();
-    auto _graphService = new _GraphService<unsigned int, _DrawVertex>();
-
+    auto drawui = new _Drawui(graph, font);
+    auto _graphService = new _GraphService<unsigned int, _DrawableVertex>();
+    std::vector<_Button*>& buttons = drawui->getButtons();
+    // SFML context
     sf::RenderWindow window(sf::VideoMode(700, 700), "Graph");
     window.setFramerateLimit(144);
+    sf::Event event;
+    sf::Vector2f coords;
+
+    // funcs 
+    using namespace std::placeholders;
+
+    std::function<void(_Graph<unsigned int, _DrawableVertex>*, _Graph_vertex<unsigned int, _DrawableVertex>*, _Graph_vertex<unsigned int, _DrawableVertex>*, unsigned int)> createEdge =
+        [](_Graph<unsigned int, _DrawableVertex>* graph, _Graph_vertex<unsigned int, _DrawableVertex>* _vertexFrom, _Graph_vertex<unsigned int, _DrawableVertex>* _vertexTo, unsigned int width) {
+        _Graph_edge<unsigned int, _DrawableVertex>* edge = new  _Graph_edge<unsigned int, _DrawableVertex>();
+        edge->_vertexFrom = _vertexFrom;
+        edge->_vertexTo = _vertexTo;
+        edge->value = width;
+        graph->_Insert_edge(edge);
+    };
+    auto createE = std::bind(createEdge, _1, _2);
+
+    std::function<void()> activateCreateE = [&](){
+        unsigned int key = drawGraph->checkAllocateVertex(coords);
+        if (key == 0) {
+            std::cout << "click closer\n";
+            return;
+        }
+        if (drawGraph->getSelectedKey() == 0 || drawGraph->getSelectedKey() == key) {
+            drawGraph->selectId(key);
+            return;
+        }
+        _Graph_edge<unsigned int, _DrawableVertex>* edge = new  _Graph_edge<unsigned int, _DrawableVertex>();
+        edge->_vertexFrom = graph->getVertex(drawGraph->getSelectedKey());
+        edge->_vertexTo = graph->getVertex(key);
+        unsigned int width;
+        std::cout << "Input width: ";
+        std::cin >> width;
+        edge->value = width;
+        graph->_Insert_edge(edge);
+        drawGraph->selectId(0);
+    };
+
+    buttons[1]->signal.connect(activateCreateE);
+
+    std::function<void(_Graph<unsigned int, _DrawableVertex>* graph, sf::Vector2f coords)> createVertex = [](_Graph<unsigned int, _DrawableVertex>* graph, sf::Vector2f coords) {
+        _DrawableVertex _drawVertex;
+        sf::Vector2f poz(coords);
+        _drawVertex.coords = poz;
+        graph->_Add_vertex(_drawVertex);
+    };
+    auto createV = std::bind(createVertex, graph, _1);
+
+    std::function<void()> activateCreateV = [&]() {
+        if (drawGraph->checkAllocateVertex(coords) != 0) {
+            std::cout << "too close to another vertex\n";
+            return;
+        }
+        createV(coords);
+    };
+    buttons[0]->signal.connect(activateCreateV);
+
+    std::function<void(_Graph<unsigned int, _DrawableVertex>* graph, unsigned int key)> deleteVertex = [](_Graph<unsigned int, _DrawableVertex>* graph, unsigned int key ) {
+        graph->_Delete_Vertex(key);
+    };
+    auto deleteV = std::bind(deleteVertex, graph, _1);
+
+    std::function<void()> activateDelete = [&]() {
+        unsigned int key = drawGraph->checkAllocateVertex(coords);
+        if (key == 0)
+            std::cout << "click closer\n";
+        else
+            deleteV(key);
+    };
+    buttons[2]->signal.connect(activateDelete);
+
+   
+
     while (window.isOpen()) {
-        sf::Event event;
+       
         while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed) window.close();
-
-
             if (event.type == sf::Event::KeyPressed) {
                 if (event.key.code == sf::Keyboard::D) {
                     unsigned int first, second;
@@ -72,7 +145,7 @@ int main() {
                 }
 
 
-                
+
                 if (event.key.code == sf::Keyboard::C) {
                     auto i = 0;
                     auto edgesMap = graph->getEdges();
@@ -108,70 +181,28 @@ int main() {
                     }
                 }
             }
+            coords.x = event.mouseButton.x;
+            coords.y = event.mouseButton.y;
 
-            sf::Vector2f coords(event.mouseButton.x, event.mouseButton.y);
+            if (event.type == sf::Event::Closed) window.close();
 
             if (!(drawGraph->checkAllocateVoid(coords)))
                 continue;
-            if (drawGraph->checkAllocateButton(coords)) {
-                *buttonMode = drawGraph->alocateButtonMode(coords);
+
+            if (drawui->checkAllocateButton(coords)) {
+                drawui->alocateButton(coords);
                 drawGraph->selectId(0);
                 continue;
             }
-           
 
             if (event.type == sf::Event::MouseButtonPressed) {
-                switch (*buttonMode) {
-                    case ButtonMode::CREATE_EDGE: {
-                        unsigned int key = drawGraph->checkAllocateVertex(coords);
-                        if (key == 0) {
-                            std::cout << "click closer\n";
-                            break;
-                        }
-                        if (drawGraph->getSelectedKey() == 0 || drawGraph->getSelectedKey() == key) {
-                            drawGraph->selectId(key);
-                            break;
-                        }
-
-                        _Graph_edge<unsigned int, _DrawVertex>* edge = new  _Graph_edge<unsigned int, _DrawVertex>();
-                        edge->_vertexFrom = graph->getVertex(drawGraph->getSelectedKey());
-                        edge->_vertexTo = graph->getVertex(key);
-                        unsigned int width;
-                        std::cout << "Input width: ";
-                        std::cin >> width;
-                        edge->value = width;
-                        graph->_Insert_edge(edge);
-                        drawGraph->selectId(0);
-                        break;
-                    }
-                    case ButtonMode::CREATE_VERTEX: {
-
-                        if (drawGraph->checkAllocateVertex(coords) != 0) {
-                            std::cout << "too close to another vertex\n";
-                            break;
-                        }
-                        _DrawVertex _drawVertex;
-                        sf::Vector2f poz(event.mouseButton.x, event.mouseButton.y);
-                        _drawVertex.coords = poz;
-                        graph->_Add_vertex(_drawVertex);
-                        break;
-                    }
-                    case ButtonMode::DELEAT: {
-                        unsigned int key = drawGraph->checkAllocateVertex(coords);
-                        if (key == 0)
-                            std::cout << "click closer\n";
-                        else
-                            graph->_Delete_Vertex(key);
-                        break;
-                    }
-                                           
-
-                }
+                drawui->activateButton();
             }
         }
 
         window.clear();
         window.draw(*drawGraph);
+        window.draw(*drawui);
         window.display();
     }
 }
