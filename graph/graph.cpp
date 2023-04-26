@@ -1,6 +1,10 @@
-﻿#include <iostream>
+﻿#pragma once
+#include <iostream>
+#include "_Traider.h"
+
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include <vector>
 #include <utility>
 #include <string>
 #include <functional>
@@ -9,7 +13,6 @@
 #include "_GraphService.h"
 #include "_Drawablevertex.h"
 #include "_Drawui.h"
-
 
 
 int main() {
@@ -46,11 +49,11 @@ int main() {
 
     std::function<void()> activateCreateE = [&](){
         unsigned int key = drawGraph->checkAllocateVertex(coords);
-        if (key == 0) {
+        if (key == -1) {
             std::cout << "click closer\n";
             return;
         }
-        if (drawGraph->getSelectedKey() == 0 || drawGraph->getSelectedKey() == key) {
+        if (drawGraph->getSelectedKey() == -1 || drawGraph->getSelectedKey() == key) {
             drawGraph->selectId(key);
             return;
         }
@@ -62,7 +65,7 @@ int main() {
         std::cin >> width;
         edge->value = width;
         graph->_Insert_edge(edge);
-        drawGraph->selectId(0);
+        drawGraph->selectId(-1);
     };
 
     buttons[1]->signal.connect(activateCreateE);
@@ -76,7 +79,7 @@ int main() {
     auto createV = std::bind(createVertex, graph, _1);
 
     std::function<void()> activateCreateV = [&]() {
-        if (drawGraph->checkAllocateVertex(coords) != 0) {
+        if (drawGraph->checkAllocateVertex(coords) != -1) {
             std::cout << "too close to another vertex\n";
             return;
         }
@@ -99,6 +102,7 @@ int main() {
     buttons[2]->signal.connect(activateDelete);
 
    
+    _Traide t;
 
     while (window.isOpen()) {
        
@@ -144,7 +148,21 @@ int main() {
                     graph->_Delete_edge(graph->getVertex(first), graph->getVertex(second));
                 }
 
+                if (event.key.code == sf::Keyboard::T) {
+                    auto matrix = _graphService->_Floid(graph);
+                    int inf = 10e8;
+                    for (int i = 0; i < matrix.size(); i++) 
+                        matrix[i][i] = inf;
+                    
+                    auto answ = t.voiajer(matrix);
+                    for (auto& a : answ.second) {
+                        std::cout << a.first << " to " << a.second << "\n";
+                    }
 
+                    std::cout << answ.first;
+                    
+                
+                }
 
                 if (event.key.code == sf::Keyboard::C) {
                     auto i = 0;
@@ -191,12 +209,14 @@ int main() {
 
             if (drawui->checkAllocateButton(coords)) {
                 drawui->alocateButton(coords);
-                drawGraph->selectId(0);
+                drawGraph->selectId(-1);
                 continue;
             }
 
             if (event.type == sf::Event::MouseButtonPressed) {
                 drawui->activateButton();
+                continue;
+
             }
         }
 

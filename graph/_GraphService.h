@@ -20,7 +20,42 @@ private:
 
 	using graph_type = _Graph<_Kty, _Ty>;
 	using _Graphptr = graph_type*;
+
+	const int infinity = 10e8;
 public:
+
+	std::vector<std::vector<int>> _Floid(_Graphptr graph) const {
+
+		std::vector<std::vector<int>> baze;
+
+		int graphSize = graph->getVertexes().size();
+		for (int i = 0; i < graphSize; i++) {
+			baze.push_back(std::vector<int>());
+			for (int j = 0; j < graphSize; j++) {
+				baze[i].push_back(infinity);
+			}
+		}
+		for (auto& vertex : graph->getVertexes()) {
+			baze[vertex.second->key][vertex.second->key] = 0;
+		}
+
+		for (auto& edgeV : graph->getEdges()) {
+			for (auto& edge : edgeV.second) {
+				baze[edge->_vertexFrom->key][edge->_vertexTo->key] = edge->value;
+			}
+		}
+
+		for (int k = 0; k < graphSize; k++) {
+			for (int i = 0; i < graphSize; i++) {
+				for (int j = 0; j < graphSize; j++) {
+					if (baze[i][j] > baze[i][k] + baze[k][j]) {
+						baze[i][j] = baze[i][k] + baze[k][j];
+					}
+				}
+			}
+		}
+		return baze;
+	}
 
 	int _Dijkstra(_Graphptr graph, _Vertexptr vertexFrom, _Vertexptr vertexTo) const {
 		std::set<_Vertexptr> visited;

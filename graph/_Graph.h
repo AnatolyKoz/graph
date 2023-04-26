@@ -33,10 +33,8 @@ public:
 private:
 	std::map<key_type, _Vertexptr> _MyVertexptrMap;
 	std::map<key_type, std::vector<_Edgeptr>> _MyEdgeMap;
-	unsigned int lastId;
 public:
 	_Graph() {
-		lastId = 1;
 	}
 
 	_Vertexptr _Insert_vertex(const _Vertexptr _Newvertex) {
@@ -47,7 +45,14 @@ public:
 	_Vertexptr _Add_vertex(value_type value) {
 		_Vertexptr _Newvertex = new vertex_type();
 		_Newvertex->value = value;
-		_Newvertex->key = lastId++;
+		int freeKey = 0;
+		for (auto pairs  : _MyVertexptrMap) {
+			int key = pairs.first;
+			if (key == freeKey) freeKey++;
+			else break;
+		}
+		
+		_Newvertex->key = freeKey;
 		return _Insert_vertex(_Newvertex);
 	}
 

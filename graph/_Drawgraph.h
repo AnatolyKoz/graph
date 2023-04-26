@@ -44,7 +44,7 @@ public:
 	_Drawgraph(_Graph<key_type, _DrawableVertex>* graph, font_type _font) {
 		_Myfont = _font;
 		_Mygraph = graph;
-		selectedKey = 0;
+		selectedKey = -1;
 	}
 
 	void _drawVertex(sf::RenderTarget& target, sf::RenderStates states, Vertexptr _vertex) const {
@@ -139,8 +139,10 @@ public:
 			if ((std::pow(coords.x - coordsC.x, 2) + std::pow(coords.y - coordsC.y, 2)) <= 4000)
 				return vertex.second->key;
 		}
-		return 0;
+		return -1;
 	}
+
+	
 
 	bool checkAllocateVoid(coords_type coords) {
 		if ((coords.x > 0 && coords.x < fieldSize_t) && (coords.y > 0 && coords.y < fieldSize_t))
