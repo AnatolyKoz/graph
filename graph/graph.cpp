@@ -68,7 +68,7 @@ int main() {
         drawGraph->selectId(-1);
     };
 
-    buttons[1]->signal.connect(activateCreateE);
+    buttons[1]->doOnClick(activateCreateE);
 
     std::function<void(_Graph<unsigned int, _DrawableVertex>* graph, sf::Vector2f coords)> createVertex = [](_Graph<unsigned int, _DrawableVertex>* graph, sf::Vector2f coords) {
         _DrawableVertex _drawVertex;
@@ -85,7 +85,7 @@ int main() {
         }
         createV(coords);
     };
-    buttons[0]->signal.connect(activateCreateV);
+    buttons[0]->doOnClick(activateCreateV);
 
     std::function<void(_Graph<unsigned int, _DrawableVertex>* graph, unsigned int key)> deleteVertex = [](_Graph<unsigned int, _DrawableVertex>* graph, unsigned int key ) {
         graph->_Delete_Vertex(key);
@@ -99,7 +99,7 @@ int main() {
         else
             deleteV(key);
     };
-    buttons[2]->signal.connect(activateDelete);
+    buttons[2]->doOnClick(activateDelete);
 
    
     _Traide t;

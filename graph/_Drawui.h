@@ -16,14 +16,30 @@
 #include <string>
 
 
-class _Button {
+class _Button : public sf::Drawable, public sf::Transformable {
 public:
-	boost::signals2::signal<void()> signal;
+	using OnClick = boost::signals2::signal<void()>;
+	using slotType = OnClick::slot_type;
+	OnClick onclick;
 	sf::RectangleShape _myshape;
 	sf::Text _Mytext;
 
-	_Button() {
-		signal = boost::signals2::signal<void()>();
+	
+	_Button() {}
+	boost::signals2::connection doOnClick(const slotType& slot)
+	{
+		return onclick.connect(slot);
+	}
+
+	void activate() {
+		onclick();
+	}
+
+
+	virtual void draw(sf::RenderTarget& target, sf::RenderStates states)  const {
+		states.transform *= getTransform();
+		target.draw(_myshape);
+		target.draw(_Mytext);
 	}
 };
 
@@ -58,6 +74,8 @@ public:
 	_Drawui(_Graph<key_type, _DrawableVertex>* graph, font_type _font) {
 		_Myfont = _font;
 		_Mygraph = graph;
+		
+
 		std::vector<std::string> initS{ "Create vertex", "Create edge", "delete" };
 		for (int i = 0; i < 3; i++) {
 			sf::RectangleShape shape(sf::Vector2f((fieldSize_t - 10) / 3, 180));
@@ -73,12 +91,13 @@ public:
 			txt->setFillColor(sf::Color(112, 124, 0));
 			txt->setFont(_Myfont);
 			txt->setPosition(5 + ((fieldSize_t - 10) / 3) * (i), (fieldSize_t - 190));
-			_Button button;
-			button._Mytext  = *txt;
-			button._myshape = shape;
-			_Mybuttons.push_back(&button);
+			_Button* button = new _Button();
+			button->_Mytext  = *txt;
+			button->_myshape = shape;
+			_Mybuttons.push_back(button);
 
 		}
+		
 		
 		active = _Mybuttons[0];
 	}
@@ -88,7 +107,7 @@ public:
 		states.transform *= getTransform();
 		
 		for (_Button* b : _Mybuttons) {
-			//target.draw(*b);
+			target.draw(*b);
 		}
 	}
 
@@ -99,7 +118,7 @@ public:
 	}
 
 	void activateButton() {
-		active->signal();
+		active->activate();
 	}
 
 	std::vector<_Button*>& getButtons() {
