@@ -69,8 +69,18 @@ public:
 
 	std::pair<int, std::vector<std::pair<int, int>>> cycle(vec& matrix, int w, std::vector<std::pair<int, int>> rout, std::vector<int> strHeader, std::vector<int> columnHeader) {
 		if (w > a) return { w, rout };
-		if (matrix.size() == 1) {
-			rout.push_back({ strHeader[0],columnHeader[0]});
+		if (matrix.size() == 2) {
+			if ( (strHeader[0] != columnHeader[1]) && (strHeader[1] != columnHeader[0])) {
+
+				rout.push_back({ strHeader[0],columnHeader[1] });
+				rout.push_back({ strHeader[1],columnHeader[0] });
+			}
+			else  {
+				rout.push_back({ strHeader[1],columnHeader[1] });
+				rout.push_back({ strHeader[0],columnHeader[0] });
+			}
+
+
 			a = std::min(w, a);
 			return { w, rout };
 		}
