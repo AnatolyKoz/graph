@@ -35,7 +35,6 @@ public:
 		onclick();
 	}
 
-
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates states)  const {
 		states.transform *= getTransform();
 		target.draw(_myshape);
@@ -67,13 +66,11 @@ private:
 	color_type selectColor = sf::Color(120, 80, 0);
 	color_type outlineColor = sf::Color(172, 235, 0);
 private:
-	_Graph<key_type, _DrawableVertex>* _Mygraph;
 	std::vector<_Button*> _Mybuttons;
 	_Button* active;
 public:
-	_Drawui(_Graph<key_type, _DrawableVertex>* graph, font_type _font) {
+	_Drawui(font_type _font) {
 		_Myfont = _font;
-		_Mygraph = graph;
 		
 
 		std::vector<std::string> initS{ "Create vertex", "Create edge", "delete" };

@@ -25,7 +25,7 @@ int main() {
     // graph serv
     auto graph = new _Graph<unsigned int, _DrawableVertex>();
     auto drawGraph = new _Drawgraph(graph, font);
-    auto drawui = new _Drawui(graph, font);
+    auto drawui = new _Drawui(font);
     auto _graphService = new _GraphService<unsigned int, _DrawableVertex>();
     std::vector<_Button*>& buttons = drawui->getButtons();
     // SFML context
@@ -33,7 +33,6 @@ int main() {
     window.setFramerateLimit(144);
     sf::Event event;
     sf::Vector2f coords;
-
     // funcs 
     using namespace std::placeholders;
 
@@ -79,6 +78,7 @@ int main() {
     auto createV = std::bind(createVertex, graph, _1);
 
     std::function<void()> activateCreateV = [&]() {
+        
         if (drawGraph->checkAllocateVertex(coords) != -1) {
             std::cout << "too close to another vertex\n";
             return;
@@ -94,7 +94,7 @@ int main() {
 
     std::function<void()> activateDelete = [&]() {
         unsigned int key = drawGraph->checkAllocateVertex(coords);
-        if (key == 0)
+        if (key == -1)
             std::cout << "click closer\n";
         else
             deleteV(key);
@@ -102,7 +102,7 @@ int main() {
     buttons[2]->doOnClick(activateDelete);
 
    
-    _Traide t;
+    _Traider t;
 
     while (window.isOpen()) {
        
@@ -199,11 +199,11 @@ int main() {
                     }
                 }
             }
+            if (event.type == sf::Event::Closed) { 
+                window.close(); }
+
             coords.x = event.mouseButton.x;
             coords.y = event.mouseButton.y;
-
-            if (event.type == sf::Event::Closed) window.close();
-
             if (!(drawGraph->checkAllocateVoid(coords)))
                 continue;
 

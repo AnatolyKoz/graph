@@ -4,11 +4,10 @@
 #define vec std::vector<std::vector<int>>
 
 
-class _Traide {
+class _Traider {
 private:
 	const int infi = 10e9;
 	int a = infi;
-public:
 	int decrement(vec& matrix) {
 		int w = 0;
 		for (int i = 0; i < matrix.size(); i++) {
@@ -127,7 +126,7 @@ public:
 		}
 		return ansG;
 	}
-
+public:
 	std::pair<int, std::vector<std::pair<int, int>>> voiajer(vec matrix) {
 		int wBaze = decrement(matrix);
 		std::vector<std::pair<int, int>> rout;
